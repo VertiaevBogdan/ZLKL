@@ -1,0 +1,107 @@
+{
+  "sens": [
+    {
+      "id": 429,
+      // (int) UID záznamu v DB
+      "adr": "tof:e8:6b:ea:d2:cd:90",
+      // dá se považovat za UID
+      // tato hodnota nás zajímá pro identifikaci v pravidelném topicu MQTT zpráv
+      "nazev": "tof:e8:6b:ea:d2:cd:90",
+      // Zobrazovaný název
+      "mqtt_id": "zlkl_soutez-01_e86bead2cd90",
+      // MQTT ID pod kterým je registrován jako klient
+      // identifikace v topicu MQTT zpráv jak pravidelných tak eventových
+      "misto_id": 53,
+      // (int) pokud null tak čidlo ignorovat, nemá nastavené místo
+      "curr_val": 51,
+      // (float)
+      "curr_val_str": "51,0 mm",
+      //string
+      "online": true,
+      "jednotky": "mm",
+      // (bool), pokud false tak nevysílalo 15minut
+      // (string)
+      "prec": 1,
+      // (int) kolik desetinných míst se má zobrazovat
+      "pomer": 1,
+      // (float) výchozí 1 'val' se násobí tímto číslem pro správný výsledek
+      "cidlo_last_tx": "2024-10-07 14:38:50",
+      "jednotky_popis": "Míra mm",
+      "jednotky_agr_typ": "avg",
+      // jak jednotka počítá hodnotu mezi odesíláním, je 'avg' nebo 'max'
+      "jednotky_ico_css": "fa-solid fa-arrows-left-right-to-line",
+      "jednotky_ico_css_active": "<i class=\"fa-solid fa-arrows-left-right-to-line\"></i>",
+      "jednotky_fail_val": -1,
+      // pokud -1 tak nenastaveno, jiná hodnota určuje chybovou
+      // 'val', tzn pokud 'val' obsahuje toto číslo tak se jedná o chybu čidla
+      "thresholds": {
+        "prahy": [
+          {
+            "enabled": true,
+            // (bool) pokud false tak prah ignorovat
+            "prah": "<10",
+            // (string) prah
+            "minDelaySec": 300,
+            // (int) minimální doba změny hodnoty na čidle,
+            // pokud se změní hodnota čidla tak se musí držet minimálně tuto dobu,
+            // pak se teprve detekuje změna - generuje event
+            "extPrah": "<10",
+            // (string) externí prah, pokud empty tak vypnuto,
+            // jinak detekuje teplotu venkovního čidla
+            "extMinDelaySec": 60,
+            // (int) minimální doba změny hodnoty na čidle venku
+            // - pokud dojde ke změně hodnoty, čeká se tuto dobu než se propíše
+            // do hodnoty, která je testována, pokud se hodnota vrátí do původního
+            // stavu před tím než uplyne tato doba tak se detekce resetuje
+            "msgType": "warning",
+            // (string) typ zprávy, může být
+            // - 'warning'
+            // - 'danger'
+            // - 'info'
+            // - 'success'
+            "mailSendPrah": 0,
+            // doba za kterou je poslán mail při změně stavu
+            // na otevřeno, pokud se do této doby zavřou dveře tak se mail nepošle,
+            // tento čas nastane až po vygenerování eventu na otevřeno
+            // - závislost na minDelaySec
+            // Pokud je tato hodnota 0 tak se použije globální proměnná,
+            // pokud je ta také 0 tak se mail nepošle
+            "mail_list": "",
+            // (string) seznam mailových adres oddělených
+            // čárkou, pokud prázdné tak se použije globální seznam a pokud
+            // je ten také prázdný tak se mail neodešle
+            "message": ""
+            // odeslaná zpráva, pokud je "" tak se
+            // použije globální proměnná
+          }
+          // .... další prahy
+        ],
+        // globální proměnné pro všechny prachy pokud nemají nastaveno
+        "mailSendPrah": 0,
+        // (int) záložní hodnota pro hodnotu v prahu - viz výše, 0 = vypnuto
+        "mail_list": "",
+        // (string) záložní hodnota pro hodnotu v prahu - viz výše - pokud prázdné
+        "message": "Hodnota pro pravidlo \"%prah%\" (s externím limitem %extPrah%)- %trigger%, hodnota je"
+      }
+    }
+  ],
+  "loc": [
+    // seznam míst kde `id` odpovídá `misto_id` v `sens`
+    {
+      "id": 53,
+      // (int) UID záznamu v DB
+      "pth": "ZLKL/Test pro test jednotky",
+      //(string)
+      "nazev": "Test pro test jednotky",
+      // (string)
+      "map": 69,
+      // (int)
+      "tof_prah_min": 0,
+      // (float) 0= vypnuto sledování, číslo kolik minut,
+      // sekundy jsou desetiny
+      "tof_maily": ""
+      // (string 200) - pokud prázdné tak vypnuto odesílání,
+      // jinak seznam mailových adres oddělených čárkou
+    }
+  ]
+}
