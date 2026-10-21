@@ -1,0 +1,55 @@
+@startuml
+title Stavový diagram sledování jedněch vrat
+
+hide empty description
+
+state "Neznámý stav" as Unknown
+state "Zavřeno" as Closed
+state "Ověření otevření" as CheckOpen
+state "Otevřeno - sledování času" as Open
+state "Otevřeno - vznikl event open" as Alert
+state "Ověření zavření\nbez předchozího eventu open" as CheckClose
+state "Ověření zavření\npo eventu open" as CheckCloseAlert
+
+[*] --> Unknown
+
+Unknown --> Closed : potvrzen počáteční zavřený stav
+Unknown --> Open : potvrzen počáteční otevřený stav\n uložit stav a začít měřit od zjištění
+
+Closed --> CheckOpen : MQTT hlásí otevření\n uložit kandidáta a čas změny
+
+CheckOpen --> Closed : návrat na zavřeno před potvrzením\n zrušit kandidáta
+
+CheckOpen --> Open : uplynula hystereze a změna trvá\n uložit otevření do paměti
+
+Open --> CheckClose : MQTT hlásí zavření\n zahájit potvrzení zavření
+
+CheckClose --> Open : návrat na otevřeno před potvrzením\n zachovat původní čas otevření
+
+CheckClose --> Closed : uplynula hystereze a změna trvá\n uložit zavření, zrušit měření\nbez eventu close a bez emailu
+
+Open --> Alert : překročen časový limit otevření\n uložit event open do paměti\nzapsat do API a odeslat email
+
+CheckClose --> CheckCloseAlert : překročen limit, zavření dosud nepotvrzeno\n uložit event open do paměti\nzapsat do API a odeslat email
+
+Alert --> CheckCloseAlert : MQTT hlásí zavření\n zahájit potvrzení zavření
+
+CheckCloseAlert --> Alert : návrat na otevřeno před potvrzením\n zachovat informaci o eventu open
+
+CheckCloseAlert --> Closed : uplynula hystereze a změna trvá\n uložit zavření a event close\nzapsat do API a odeslat email\nukončit cyklus otevření
+
+note bottom of Open
+  Délku otevření vyhodnocuje časovač,
+  nezávisle na příchodu dalších MQTT zpráv.
+  Opakovaná zpráva o otevření
+  neresetuje začátek měření.
+end note
+
+note bottom of Alert
+  Pro jeden cyklus otevření vzniká
+  pouze jeden event open.
+  Vznik eventu neznamená potvrzení
+  úspěšného doručení přes API nebo email.
+end note
+
+@enduml

@@ -1,0 +1,84 @@
+@startuml
+title Sledování vrat - activity diagram
+
+start
+
+:Inicializovat paměť aplikace a logování;
+
+repeat
+  :Načíst konfiguraci z API;
+  :Ověřit strukturu a vazby dat;
+
+  if (Konfigurace je platná?) then (ne)
+    :Zapsat chybu a počkat před opakováním;
+  endif
+
+repeat while (Konfigurace není platná?) is (ano) not (ne)
+
+:Propojit čidla s místy;
+:Vynechat čidla bez přiřazeného místa;
+:Inicializovat stavy vrat jako neznámé;
+
+:Spustit MQTT klienta a odběr topiců;
+:Spustit časovače a zpracování fronty odesílání;
+
+note right
+  MQTT klient obnovuje spojení při výpadku.
+  Fronta odesílání pracuje nezávisle
+  na příjmu zpráv a vyhodnocování vrat.
+end note
+
+while (Aplikace má pokračovat?) is (ano)
+
+  :Počkat na zprávu, časovač nebo řídicí event;
+
+  if (Požadavek na ukončení?) then (ano)
+    :Nastavit požadavek na zastavení;
+
+  elseif (Je čas obnovit konfiguraci?) then (ano)
+    :Načíst a ověřit novou konfiguraci;
+
+    if (Nová konfigurace je platná?) then (ano)
+      :Aktualizovat konfiguraci a dotčené časovače;
+    else (ne)
+      :Zapsat chybu a zachovat poslední platnou konfiguraci;
+    endif
+
+  elseif (Přišla MQTT zpráva?) then (ano)
+    :Ověřit formát a identifikovat čidlo;
+
+    if (Zpráva patří sledovanému čidlu?) then (ano)
+      :Vyhodnotit hodnotu a příslušné podmínky;
+      :Aktualizovat kandidáta změny stavu;
+      :Spustit nebo zrušit časové potvrzení změny;
+    else (ne)
+      :Ignorovat zprávu;
+    endif
+
+  elseif (Vypršel časovač?) then (ano)
+    :Ověřit platnost časovače a podmínky;
+    :Potvrdit změnu stavu nebo vyhodnotit limit otevření;
+
+  else (jiný event)
+    :Zpracovat stav spojení nebo výsledek odesílání;
+    :Zapsat chybu a naplánovat opakování, je-li potřeba;
+  endif
+
+  :Předat potvrzené změny a platná vypršení limitů
+  stavovému automatu příslušných vrat;
+
+  if (Vznikl event open nebo close?) then (ano)
+    :Zařadit zápis eventu do fronty ;
+
+    if (Konfigurace povoluje email?) then (ano)
+      :Zařadit email do fronty odesílání;
+    endif
+  endif
+
+endwhile (ne)
+
+:Ukončit odběr MQTT a zastavit časovač;
+:Bezpečně ukončit zpracování odesílání;
+
+stop
+@enduml
