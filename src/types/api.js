@@ -135,7 +135,7 @@
  * **/
 
 /**
- * "loc" - seznam míst kde `id` odpovídá `misto_id` v `sens`
+ * "loc" - seznam míst kde "id" odpovídá "misto_id" v "sens"
  * @typedef {Object} Location
  *
  * @property {number} id
