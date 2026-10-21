@@ -1,14 +1,22 @@
 /**
  * @typedef {'avg' | 'max'} AggregationType
- *
- * @typedef {'1' | '>1' | '>=1' | '<1' | '<=1' | '1:2' | '1~2' | '1>2'} ThresholdExpression
- *
+ **/
+
+ /** @typedef {string} ThresholdExpression
+ * Podmínka pro porovnání hodnoty čidla.
+ *  Příklady: "1", ">1", ">=1", "<1", "<=1",
+ *  "1:2", "1~2", "1>2".
+ *  Desetinná čísla se zapisují s tečkou, například "<10.5".
+  *  **/
+
+/**
  * @typedef {'warning' | 'danger' | 'info' | 'success'} MessageType
  * typ zprávy, může být: 'warning', 'danger', 'info', 'success'
+ *
  * **/
 
 /**
- * @typedef {Object} SensorThresholds
+ * @typedef {Object} ThresholdRule
  *
  * @property {boolean} enabled
  * pokud false tak prah ignorovat
@@ -50,20 +58,35 @@
  * použije thresholds.message
  * **/
 
+/**
+ * @typedef {Object} SensorThresholds
+ *
+ * @property {ThresholdRule[]} prahy
+ *
+ * @property {number} mailSendPrah
+ * záložní hodnota pro hodnotu v prahu; 0 = vypnuto
+ *
+ * @property {string} mail_list
+ *  záložní hodnota pro hodnotu v prahu
+ *
+ * @property {string} message
+ * Příklad: "Hodnota pro pravidlo \"%prah%\" (s externím limitem %extPrah%)- %trigger%, hodnota je"
+ * **/
+
 
 
 /**
- * "sens" - seznam zenzorů
+ * "sens" - seznam senzorů
  * @typedef {Object} Sensor
  *
  * @property {number} id
- * Unikatní id záznamu v db
+ * Unikátní id záznamu v db
  *
  * @property {string} adr
- * MAC adresa senzoru (dá se považovat za UID), příklad: tof:e8:6b:ea:d2:cd:90
- *
+ * Adresa čidla používaná pro identifikaci v pravidelných
+ *  MQTT zprávách. Příklad: "tof:e8:6b:ea:d2:cd:90"
  * @property {string} nazev
- * Zobrazený název, může odpovídat "adr"
+ * Zobrazovaný název, může odpovídat "adr"
  *
  * @property {string} mqtt_id
  * MQTT ID pod kterým je registrován jako klient. Používá se v topicu MQTT zpráv.
@@ -71,7 +94,7 @@
  * ID místa, kde je senzor nastaven, pokud je null - ignoruje se.
  *
  * @property {number} curr_val
- * Číslo s desetonou čárkou
+ * Aktuální číselná hodnota čidla. Číslo s desetonou čárkou
  *
  * @property {string} curr_val_str
  * Příklad zápisu: "32,2 mm"
@@ -88,19 +111,21 @@
  * float - výchozí je 1.0, "val" se násobí tímto číslem pro správný výsledek
  *
  * @property {string} cidlo_last_tx
- * Timestamp ve formátu "yyyy-mm-dd hh:mm:ss"
+ *  Datum a čas posledního vysílání čidla.
+ * Formát: "yyyy-mm-dd hh:mm:ss"
  *
  * @property {string} jednotky_popis
  * Příklad: "Míra mm"
  *
  * @property {AggregationType} jednotky_agr_typ
  * Způsob jak jednotka počítá hodnotu mezi odesíláním.
- * avg - přůměr, max - maximum
+ * avg - průměr, max - maximum
  *
  * @property {string} jednotky_ico_css
- * css styly
+ * CSS třídy ikony jednotky.
  *
  * @property {string} jednotky_ico_css_active
+ * HTML kód ikony jednotky.
  *
  * @property {number} jednotky_fail_val
  * pokud -1 tak nenastaveno, jiná hodnota určuje chybovou
@@ -131,7 +156,7 @@
  * **/
 
 /**
- * strukrura response
+ * Strukrura response API
  *
  * @typedef {Object} response
  * @property {Sensor[]} sens
